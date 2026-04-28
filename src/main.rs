@@ -105,5 +105,12 @@ fn main() {
         .read_line(&mut input)
         .expect("Failed to read user input");
 
-    println!("You typed: {}", input);
+    // println!("You typed: {}", input);
+    let cleaned = input.trim();
+
+    if cleaned.to_lowercase() == "c" {
+        println!("You typed c");
+    } else if cleaned.to_lowercase() == "d" {
+        println!("You typed d");
+    }
 }
