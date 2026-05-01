@@ -1,8 +1,4 @@
 // Simple to-do application
-/*Current issue: 
-1. Error handling: input panics -> .expect(). Uses Result<usize, ParseIntError> to handle  */
-
-
 // imports
 use std::fs::{OpenOptions, metadata};
 use std::io::{self, BufRead, BufReader, BufWriter, Result, Write};
@@ -10,7 +6,13 @@ use std::io::{self, BufRead, BufReader, BufWriter, Result, Write};
 // constants: file path
 const FILE_PATH: &str = "log.txt";
 
- 
+/// Reads and displays all tasks from the log file, numbered sequentially
+/// 
+/// Opens [`FILE_PATH`] in read mode (creating it if absent), then iterates
+/// line by line, skipping blank lines
+/// 
+/// # Errors
+/// Returns an [`Err`] if the file cannot be opened or a line cannot be read.
 fn show_existing_tasks() -> Result<()> {
     // open the file 
     let file = OpenOptions::new()
@@ -42,6 +44,15 @@ fn show_existing_tasks() -> Result<()> {
     Ok(())
 }
 
+/// Appends a new task to a log file
+/// 
+/// The input string is trimmed before writing to strip the trailing newline
+/// 
+/// # Arguments:
+/// * `task` - Raw input string read from stdin
+/// 
+/// # Errors:
+/// Returns an [`Err`] if the file cannot be opened or the write fails
 fn create_new_task(task: String) -> Result<()> {
     // open the file 
     let file = OpenOptions::new()
@@ -58,6 +69,17 @@ fn create_new_task(task: String) -> Result<()> {
     Ok(())
 }
 
+/// Removes the task at the given 1-based index from the log file.
+///
+/// Reads all non-empty lines into memory, drops the line at `index`,
+/// prints a confirmation message, then rewrites the file with the
+/// remaining tasks.
+/// 
+/// # Arguments
+/// * `index` - 1-based position of the task to delete, as displayed to the user.
+/// # Errors
+/// Returns an [`Err`] if the file cannot be opened, read, or rewritten.
+/// Prints a message to stderr if `index` is out of range but does not return an error.
 fn delete_task(index: usize) -> io::Result<()> {
     if index == 0 {
         eprintln!("Task index must be greater than zero");
@@ -107,6 +129,11 @@ fn delete_task(index: usize) -> io::Result<()> {
     Ok(())
 }
 
+/// Reads a single integer from stdin, blocking until the user presses Enter.
+///
+/// # Panics
+/// Panics if reading from stdin fails, or if the trimmed input cannot be
+/// parsed as a [`usize`].
 fn read_int() -> usize {
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Failed to read user input");
